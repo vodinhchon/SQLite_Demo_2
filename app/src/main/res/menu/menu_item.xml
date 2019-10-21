@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_book"
+        android:title="Thông tin sách"/>
+
+    <item
+        android:id="@+id/menu_author"
+        android:title="Thông tin tác giả"/>
+
+    <item
+        android:id="@+id/menu_find"
+        android:title="Tìm kiếm Sách/Tác giả"/>
+
+</menu>
