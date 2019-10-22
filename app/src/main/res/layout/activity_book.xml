@@ -18,7 +18,8 @@
         android:id="@+id/editText_maso"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:hint="Nhập mã số" />
+        android:hint="Nhập mã số"
+        android:inputType="number" />
 
     <EditText
         android:id="@+id/editText_tieude"
@@ -30,7 +31,8 @@
         android:id="@+id/editText_masotacgia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nhập mã số tác giả" />
+        android:hint="Nhập mã số tác giả"
+        android:inputType="number" />
 
     <LinearLayout
         android:layout_width="match_parent"

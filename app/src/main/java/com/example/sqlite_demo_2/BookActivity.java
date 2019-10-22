@@ -2,6 +2,9 @@ package com.example.sqlite_demo_2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -25,11 +28,55 @@ public class BookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book);
         initView();
-        eventClickSelect();
-        eventClickSave();
-        eventClickUpdate();
-        eventClickDelete();
+        eventClickSaveProvider();
+        eventClickSelectProvider();
+//        eventClickSelect();
+//        eventClickSave();
+//        eventClickUpdate();
+//        eventClickDelete();
         eventClickExit();
+    }
+
+    private void eventClickSaveProvider() {
+        button_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues values = new ContentValues();
+                values.put("id_book", editText_maso.getText().toString());
+                values.put("title", editText_tieude.getText().toString());
+                values.put("id_author", editText_masotacgia.getText().toString());
+                String uri = "content://com.example.sqlite_demo_2";
+                Uri book = Uri.parse(uri);
+                Uri insert_uri = getContentResolver().insert(book, values);
+                Toast.makeText(getApplicationContext(), "Lưu thành công !", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void eventClickSelectProvider() {
+        button_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<String> list_string = new ArrayList<>();
+                String uri = "content://com.example.sqlite_demo_2";
+                Uri book = Uri.parse(uri);
+                Cursor cursor = getContentResolver().query(book, null, null, null, "title");
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    do {
+                        list_string.add(cursor.getInt(0) + "");
+                        list_string.add(cursor.getString(1) + "");
+                        list_string.add(cursor.getInt(2) + "");
+                    } while (cursor.moveToNext());
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(BookActivity.this,
+                            android.R.layout.simple_list_item_1, list_string);
+                    gridView_display.setAdapter(adapter);
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void eventClickExit() {
