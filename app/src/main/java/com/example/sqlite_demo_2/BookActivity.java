@@ -28,12 +28,12 @@ public class BookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book);
         initView();
-        eventClickSaveProvider();
-        eventClickSelectProvider();
-//        eventClickSelect();
-//        eventClickSave();
-//        eventClickUpdate();
-//        eventClickDelete();
+//        eventClickSaveProvider();
+//        eventClickSelectProvider();
+        eventClickSelect();
+        eventClickSave();
+        eventClickUpdate();
+        eventClickDelete();
         eventClickExit();
     }
 

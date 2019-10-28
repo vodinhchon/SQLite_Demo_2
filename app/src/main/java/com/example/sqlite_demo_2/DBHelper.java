@@ -21,20 +21,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String author = "create table Authors(id_author integer primary key, name text, address text, email text)";
         db.execSQL(author);
-//        db.execSQL("CREATE TABLE Authors(" +
-//                "id_author integer primary key, " +
-//                "name text, " +
-//                "address text, " +
-//                "email text)");
         String book = "create table Books(id_book integer primary key, title text, " +
                 "id_author integer constraint id_author references Authors(id_author) on delete cascade on update cascade)";
         db.execSQL(book);
-//        db.execSQL("CREATE TABLE Book(" +
-//                "id_book integer primary key, " +
-//                "title text, " +
-//                "id_author integer " +
-//                "constraint id_author reference   s Authors(id_author)" +
-//                "On Delete Cascade ON UPDATE CASCADE)");
     }
 
     @Override
@@ -62,7 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
     //get Author
     public Author getAuthor(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "select * from Authors where id = " + id;
+        String query = "select * from Authors where id_author = " + id;
         Cursor cursor = db.rawQuery(query, null);
         if (cursor != null)
             cursor.moveToFirst();
