@@ -9,13 +9,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <provider
-            android:name=".MyContentProvider"
-            android:authorities="com.example.sqlite_demo_2"
+            android:name=".MyContentProvider_Author"
+            android:authorities="author"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="com.example.sqlite_demo_2.READ_DATABASE"
-            android:writePermission="com.example.sqlite_demo_2.WRITE_DATABASE"/>
+            android:readPermission="author.READ_DATABASE"
+            android:writePermission="author.WRITE_DATABASE" />
+
+        <provider
+            android:name=".MyContentProvider_Book"
+            android:authorities="book"
+            android:enabled="true"
+            android:exported="true"
+            android:readPermission="book.READ_DATABASE"
+            android:writePermission="book.WRITE_DATABASE" />
 
         <activity android:name=".SearchActivity" />
         <activity android:name=".AuthorActivity" />
@@ -28,12 +37,4 @@
             </intent-filter>
         </activity>
     </application>
-    <permission android:name="com.example.sqlite_demo_2.WRITE_DATABASE"
-        android:label="Write Database"
-        android:protectionLevel="normal"/>
-
-    <permission android:name="com.example.sqlite_demo_2.READ_DATABASE"
-        android:label="Read Database"
-        android:protectionLevel="normal"/>
-
 </manifest>

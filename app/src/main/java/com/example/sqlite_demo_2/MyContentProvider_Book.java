@@ -14,9 +14,9 @@ import android.widget.TableLayout;
 
 import java.util.HashMap;
 
-public class MyContentProvider extends ContentProvider {
+public class MyContentProvider_Book extends ContentProvider {
 
-    static final String AUTHORITY = "com.example.sqlite_demo_2";
+    static final String AUTHORITY = "book";
     static final String CONTENT_PATH = "bookdata";
     static final String URL = "content://" + AUTHORITY + "/" + CONTENT_PATH;
     static final Uri CONTENT_URI = Uri.parse(URL);
@@ -36,7 +36,7 @@ public class MyContentProvider extends ContentProvider {
         uriMathcher.addURI(AUTHORITY, CONTENT_PATH + "/#", ONEITEM);
     }
 
-    public MyContentProvider() {
+    public MyContentProvider_Book() {
     }
 
     @Override
@@ -104,7 +104,7 @@ public class MyContentProvider extends ContentProvider {
                 break;
         }
         if (sortOrder == null || sortOrder == "") {
-            sortOrder = "title";
+            sortOrder = "id_book";
         }
         Cursor cursor = sqlite_builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);

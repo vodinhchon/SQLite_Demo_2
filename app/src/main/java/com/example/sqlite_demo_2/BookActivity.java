@@ -20,20 +20,17 @@ public class BookActivity extends AppCompatActivity {
     EditText editText_maso, editText_tieude, editText_masotacgia;
     Button button_select, button_save, button_update, button_delete, button_exit;
     GridView gridView_display;
-    DBHelper dbHelper;
-    private ArrayAdapter<String> adapter;
+    static final String URL = "content://book/bookdata";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book);
         initView();
-//        eventClickSaveProvider();
-//        eventClickSelectProvider();
-        eventClickSelect();
-        eventClickSave();
-        eventClickUpdate();
-        eventClickDelete();
+        eventClickSaveProvider();
+        eventClickDeleteProvider();
+        eventClickUpdateProvider();
+        eventClickSelectProvider();
         eventClickExit();
     }
 
@@ -41,14 +38,77 @@ public class BookActivity extends AppCompatActivity {
         button_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContentValues values = new ContentValues();
-                values.put("id_book", editText_maso.getText().toString());
-                values.put("title", editText_tieude.getText().toString());
-                values.put("id_author", editText_masotacgia.getText().toString());
-                String uri = "content://com.example.sqlite_demo_2";
-                Uri book = Uri.parse(uri);
-                Uri insert_uri = getContentResolver().insert(book, values);
-                Toast.makeText(getApplicationContext(), "Lưu thành công !", Toast.LENGTH_SHORT).show();
+                String maso = editText_maso.getText().toString();
+                String tieude = editText_tieude.getText().toString();
+                String masotacgia = editText_masotacgia.getText().toString();
+                if (checkEmpty(maso, tieude, masotacgia)) {
+                    ContentValues values = new ContentValues();
+                    values.put("id_book", maso);
+                    values.put("title", tieude);
+                    values.put("id_author", masotacgia);
+                    Uri uri = Uri.parse(URL);
+                    try {
+                        getContentResolver().insert(uri, values);
+                        clear();
+                        selectItem(null, null);
+                        Toast.makeText(getApplicationContext(), "Lưu thành công.", Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "Lỗi ! Mã số đã tồn tại.", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Hãy nhập đầy đủ thông tin.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void eventClickDeleteProvider() {
+        button_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String maso = editText_maso.getText().toString();
+                if (!maso.isEmpty()) {
+                    String[] id = {maso};
+                    Uri uri = Uri.parse(URL);
+                    int i = getContentResolver().delete(uri, "id_book=?", id);
+                    if (i > 0) {
+                        clear();
+                        selectItem(null, null);
+                        Toast.makeText(BookActivity.this, "Xóa thành công.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(BookActivity.this, "Lỗi ! Mã số không chính xác.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(BookActivity.this, "Hãy nhập mã số.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void eventClickUpdateProvider() {
+        button_update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String maso = editText_maso.getText().toString();
+                String tieude = editText_tieude.getText().toString();
+                String masotacgia = editText_masotacgia.getText().toString();
+                if (checkEmpty(maso, tieude, masotacgia)) {
+                    ContentValues values = new ContentValues();
+                    values.put("id_book", maso);
+                    values.put("title", tieude);
+                    values.put("id_author", masotacgia);
+                    Uri uri = Uri.parse(URL);
+                    int i = getContentResolver().update(uri, values, "id_book=?", new String[]{maso});
+                    if (i > 0) {
+                        clear();
+                        selectItem(null, null);
+                        Toast.makeText(BookActivity.this, "Cập nhật thành công.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(BookActivity.this, "Lỗi ! Mã số không chính xác.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Hãy nhập đầy đủ thông tin.", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -57,26 +117,38 @@ public class BookActivity extends AppCompatActivity {
         button_select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<String> list_string = new ArrayList<>();
-                String uri = "content://com.example.sqlite_demo_2";
-                Uri book = Uri.parse(uri);
-                Cursor cursor = getContentResolver().query(book, null, null, null, "title");
-                if (cursor != null) {
-                    cursor.moveToFirst();
-                    do {
-                        list_string.add(cursor.getInt(0) + "");
-                        list_string.add(cursor.getString(1) + "");
-                        list_string.add(cursor.getInt(2) + "");
-                    } while (cursor.moveToNext());
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(BookActivity.this,
-                            android.R.layout.simple_list_item_1, list_string);
-                    gridView_display.setAdapter(adapter);
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
+                String maso = editText_maso.getText().toString();
+                String[] id = {editText_maso.getText().toString()};
+                if (!maso.isEmpty()) {
+                    selectItem("id_book=?", id);
+                } else {
+                    selectItem(null, null);
                 }
             }
         });
+    }
+
+    private void selectItem(String selection, String[] selectionArgs) {
+        ArrayList<String> list_string = new ArrayList<>();
+        Uri uri = Uri.parse(URL);
+        try {
+            Cursor cursor = getContentResolver().query(uri, null, selection, selectionArgs, "id_book");
+            if (cursor != null) {
+                cursor.moveToFirst();
+                do {
+                    list_string.add(cursor.getInt(0) + "");
+                    list_string.add(cursor.getString(1) + "");
+                    list_string.add(cursor.getInt(2) + "");
+                } while (cursor.moveToNext());
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(BookActivity.this,
+                        android.R.layout.simple_list_item_1, list_string);
+                gridView_display.setAdapter(adapter);
+            } else {
+                Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void eventClickExit() {
@@ -88,67 +160,11 @@ public class BookActivity extends AppCompatActivity {
         });
     }
 
-    private void eventClickSelect() {
-        button_select.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<Book> list_book = new ArrayList<>();
-                ArrayList<String> list_string = new ArrayList<>();
-                list_book = dbHelper.getALlBook();
-                for (Book book : list_book) {
-                    list_string.add(book.getId_book() + "");
-                    list_string.add(book.getTitle() + "");
-                    list_string.add(book.getId_author() + "");
-                }
-                adapter = new ArrayAdapter<String>(BookActivity.this,
-                        android.R.layout.simple_list_item_1, list_string);
-                gridView_display.setAdapter(adapter);
-            }
-        });
-    }
-
-    private void eventClickSave() {
-        button_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Book book = new Book();
-                book.setId_book(Integer.parseInt(editText_maso.getText().toString()));
-                book.setTitle(editText_tieude.getText().toString());
-                book.setId_author(Integer.parseInt(editText_masotacgia.getText().toString()));
-                if (dbHelper.insertBook(book) > 0) {
-                    clear();
-                    Toast.makeText(getApplicationContext(), "Đã lưu thành công", Toast.LENGTH_SHORT).show();
-                } else
-                    Toast.makeText(getApplicationContext(), "Lưu không thành công", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void eventClickUpdate() {
-        button_update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-    }
-
-    private void eventClickDelete() {
-        button_delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String id = editText_maso.getText().toString();
-                if (!id.isEmpty()) {
-                    int idkq = Integer.parseInt(id);
-                    dbHelper.deleteBook(idkq);
-                    adapter.notifyDataSetChanged();
-                    clear();
-                    Toast.makeText(getApplicationContext(), "Đã xóa thành công", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Xóa không thành công", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    private boolean checkEmpty(String id_book, String title, String id_author) {
+        if (id_book.isEmpty() || title.isEmpty() || id_author.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     private void clear() {
@@ -169,6 +185,5 @@ public class BookActivity extends AppCompatActivity {
         button_exit = (Button) findViewById(R.id.button_exit);
 
         gridView_display = (GridView) findViewById(R.id.gridView_display);
-        dbHelper = new DBHelper(BookActivity.this);
     }
 }

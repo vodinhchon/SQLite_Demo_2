@@ -2,6 +2,9 @@ package com.example.sqlite_demo_2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -17,19 +20,140 @@ public class AuthorActivity extends AppCompatActivity {
     EditText editText_maso, editText_diachi, editText_email, editText_hoten;
     Button button_select, button_save, button_update, button_delete, button_exit;
     GridView gridView_display;
-    DBHelper dbHelper;
-    private ArrayAdapter<String> adapter;
+    static final String URL = "content://author/authordata";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_author);
         initView();
-        eventClickSelect();
-        eventClickSave();
-        eventClickUpdate();
-        eventClickDelete();
+        eventClickSaveProvider();
+        eventClickDeleteProvider();
+        eventClickUpdateProvider();
+        eventClickSelectProvider();
         eventClickExit();
+    }
+
+    private void eventClickSaveProvider() {
+        button_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String maso = editText_maso.getText().toString();
+                String hoten = editText_hoten.getText().toString();
+                String diachi = editText_diachi.getText().toString();
+                String email = editText_email.getText().toString();
+                if (checkEmpty(maso, hoten, diachi, email)) {
+                    ContentValues values = new ContentValues();
+                    values.put("id_author", maso);
+                    values.put("name", hoten);
+                    values.put("address", diachi);
+                    values.put("email", email);
+                    Uri uri = Uri.parse(URL);
+                    try {
+                        getContentResolver().insert(uri, values);
+                        clear();
+                        selectItem(null, null);
+                        Toast.makeText(getApplicationContext(), "Lưu thành công.", Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "Lỗi ! Mã số đã tồn tại.", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Hãy nhập đầy đủ thông tin.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void eventClickDeleteProvider() {
+        button_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String maso = editText_maso.getText().toString();
+                if (!maso.isEmpty()) {
+                    String[] id = {maso};
+                    Uri uri = Uri.parse(URL);
+                    int i = getContentResolver().delete(uri, "id_author=?", id);
+                    if (i > 0) {
+                        clear();
+                        selectItem(null, null);
+                        Toast.makeText(AuthorActivity.this, "Xóa thành công.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(AuthorActivity.this, "Lỗi ! Mã số không chính xác.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(AuthorActivity.this, "Hãy nhập mã số.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void eventClickUpdateProvider() {
+        button_update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String maso = editText_maso.getText().toString();
+                String hoten = editText_hoten.getText().toString();
+                String diachi = editText_diachi.getText().toString();
+                String email = editText_email.getText().toString();
+                if (checkEmpty(maso, hoten, diachi, email)) {
+                    ContentValues values = new ContentValues();
+                    values.put("id_author", maso);
+                    values.put("name", hoten);
+                    values.put("address", diachi);
+                    values.put("email", email);
+                    Uri uri = Uri.parse(URL);
+                    int i = getContentResolver().update(uri, values, "id_author=?", new String[]{maso});
+                    if (i > 0) {
+                        clear();
+                        selectItem(null, null);
+                        Toast.makeText(AuthorActivity.this, "Cập nhật thành công.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(AuthorActivity.this, "Lỗi ! Mã số không chính xác.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Hãy nhập đầy đủ thông tin.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void eventClickSelectProvider() {
+        button_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String maso = editText_maso.getText().toString();
+                String[] id = {editText_maso.getText().toString()};
+                if (!maso.isEmpty()) {
+                    selectItem("id_author=?", id);
+                } else {
+                    selectItem(null, null);
+                }
+            }
+        });
+    }
+
+    private void selectItem(String selection, String[] selectionArgs) {
+        ArrayList<String> list_string = new ArrayList<>();
+        Uri uri = Uri.parse(URL);
+        try {
+            Cursor cursor = getContentResolver().query(uri, null, selection, selectionArgs, "id_author");
+            if (cursor != null) {
+                cursor.moveToFirst();
+                do {
+                    list_string.add(cursor.getInt(0) + "");
+                    list_string.add(cursor.getString(1) + "");
+                    list_string.add(cursor.getString(2) + "");
+                    list_string.add(cursor.getString(3) + "");
+                } while (cursor.moveToNext());
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(AuthorActivity.this,
+                        android.R.layout.simple_list_item_1, list_string);
+                gridView_display.setAdapter(adapter);
+            } else {
+                Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void eventClickExit() {
@@ -41,69 +165,11 @@ public class AuthorActivity extends AppCompatActivity {
         });
     }
 
-    private void eventClickSelect() {
-        button_select.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<Author> list_author = new ArrayList<>();
-                ArrayList<String> list_string = new ArrayList<>();
-                list_author = dbHelper.getALlAuthor();
-                for (Author author : list_author) {
-                    list_string.add(author.getId_author() + "");
-                    list_string.add(author.getName() + "");
-                    list_string.add(author.getAddress() + "");
-                    list_string.add(author.getEmail() + "");
-                }
-                adapter = new ArrayAdapter<String>(AuthorActivity.this,
-                        android.R.layout.simple_list_item_1, list_string);
-                gridView_display.setAdapter(adapter);
-            }
-        });
-    }
-
-    private void eventClickSave() {
-        button_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Author author = new Author();
-                author.setId_author(Integer.parseInt(editText_maso.getText().toString()));
-                author.setName(editText_hoten.getText().toString());
-                author.setAddress(editText_diachi.getText().toString());
-                author.setEmail(editText_email.getText().toString());
-                if (dbHelper.insertAuthor(author) > 0) {
-                    clear();
-                    Toast.makeText(getApplicationContext(), "Đã lưu thành công", Toast.LENGTH_SHORT).show();
-                } else
-                    Toast.makeText(getApplicationContext(), "Lưu không thành công", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void eventClickUpdate() {
-        button_update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-    }
-
-    private void eventClickDelete() {
-        button_delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String id = editText_maso.getText().toString();
-                if (!id.isEmpty()) {
-                    int idkq = Integer.parseInt(id);
-                    dbHelper.deleteAuthor(idkq);
-                    adapter.notifyDataSetChanged();
-                    clear();
-                    Toast.makeText(getApplicationContext(), "Đã xóa thành công", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Xóa không thành công", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    private boolean checkEmpty(String id_author, String name, String address, String email) {
+        if (id_author.isEmpty() || name.isEmpty() || address.isEmpty() || email.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     private void clear() {
@@ -126,6 +192,5 @@ public class AuthorActivity extends AppCompatActivity {
         button_exit = (Button) findViewById(R.id.button_exit);
 
         gridView_display = (GridView) findViewById(R.id.gridView_display);
-        dbHelper = new DBHelper(AuthorActivity.this);
     }
 }

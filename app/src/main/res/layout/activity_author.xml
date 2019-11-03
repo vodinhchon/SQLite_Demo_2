@@ -22,7 +22,8 @@
             android:id="@+id/editText_maso"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:hint="Nhập mã số" />
+            android:hint="Nhập mã số"
+            android:inputType="number" />
 
         <EditText
             android:id="@+id/editText_hoten"
