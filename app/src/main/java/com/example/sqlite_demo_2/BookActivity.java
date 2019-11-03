@@ -34,6 +34,16 @@ public class BookActivity extends AppCompatActivity {
         eventClickExit();
     }
 
+//    private boolean check_Id_Author(String selection, String[] selectionArgs) {
+//        String URL = "content://author/authordata";
+//        Uri uri = Uri.parse(URL);
+//        Cursor cursor = getContentResolver().query(uri, null, selection, selectionArgs, "id_author");
+//        if (cursor == null) {
+//            return false;
+//        }
+//        return true;
+//    }
+
     private void eventClickSaveProvider() {
         button_save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,6 +51,8 @@ public class BookActivity extends AppCompatActivity {
                 String maso = editText_maso.getText().toString();
                 String tieude = editText_tieude.getText().toString();
                 String masotacgia = editText_masotacgia.getText().toString();
+//                String[] id = {editText_masotacgia.getText().toString()};
+//                if (check_Id_Author("id_author=?", id)) {
                 if (checkEmpty(maso, tieude, masotacgia)) {
                     ContentValues values = new ContentValues();
                     values.put("id_book", maso);
@@ -58,6 +70,9 @@ public class BookActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), "Hãy nhập đầy đủ thông tin.", Toast.LENGTH_LONG).show();
                 }
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "Mã số tác giả không chính xác.", Toast.LENGTH_LONG).show();
+//                }
             }
         });
     }
@@ -128,7 +143,7 @@ public class BookActivity extends AppCompatActivity {
         });
     }
 
-    private boolean selectItem(String selection, String[] selectionArgs) {
+    private void selectItem(String selection, String[] selectionArgs) {
         ArrayList<String> list_string = new ArrayList<>();
         Uri uri = Uri.parse(URL);
         try {
@@ -143,14 +158,13 @@ public class BookActivity extends AppCompatActivity {
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(BookActivity.this,
                         android.R.layout.simple_list_item_1, list_string);
                 gridView_display.setAdapter(adapter);
-                return true;
+                Toast.makeText(getApplicationContext(), cursor + "", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
         }
-        return false;
     }
 
     private void eventClickExit() {
