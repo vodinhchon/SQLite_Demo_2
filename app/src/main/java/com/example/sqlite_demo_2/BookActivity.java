@@ -128,7 +128,7 @@ public class BookActivity extends AppCompatActivity {
         });
     }
 
-    private void selectItem(String selection, String[] selectionArgs) {
+    private boolean selectItem(String selection, String[] selectionArgs) {
         ArrayList<String> list_string = new ArrayList<>();
         Uri uri = Uri.parse(URL);
         try {
@@ -143,12 +143,14 @@ public class BookActivity extends AppCompatActivity {
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(BookActivity.this,
                         android.R.layout.simple_list_item_1, list_string);
                 gridView_display.setAdapter(adapter);
+                return true;
             } else {
                 Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Không có kết quả !", Toast.LENGTH_SHORT).show();
         }
+        return false;
     }
 
     private void eventClickExit() {
